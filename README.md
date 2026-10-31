@@ -1,6 +1,6 @@
 # 🎵 YouTube to MP3 Downloader Pro
 
-A fast, lightweight, and modern **YouTube to MP3 audio downloader** featuring a standalone **Desktop GUI** and a companion **Google Chrome Extension (Manifest V3)** for 1-click downloads with up to **320 kbps** audio quality, embedded high-resolution album art, and full ID3 metadata.
+A fast, lightweight, and modern **YouTube to MP3 audio downloader** featuring a native Windows **Desktop App (`YouTubeToMP3.exe`)** and a companion **Google Chrome Extension (Manifest V3)** for 1-click downloads with up to **320 kbps** audio quality, embedded high-resolution album art, and full ID3 metadata.
 
 ---
 
@@ -9,6 +9,7 @@ A fast, lightweight, and modern **YouTube to MP3 audio downloader** featuring a 
 - **Highest Audio Quality**: Converts audio to true high-bitrate MP3 (320 kbps, 256 kbps, 192 kbps, or 128 kbps) using embedded FFmpeg.
 - **Embedded HD Album Art & ID3 Tags**: Automatically fetches original high-res thumbnails and tags (Title, Artist, Channel, Year) and embeds them directly into the `.mp3` file. Compatible with Windows Media Player, Groove, VLC, Spotify local files, and mobile/car audio players.
 - **Chrome Extension (1-Click Download)**: Injects a native-looking `[ 🎵 Download MP3 ]` button right into YouTube's action bar under any video, plus an intuitive popup menu.
+- **Zero-Console Clean Launch**: Opens directly without any command prompt (`cmd.exe`) or black window flashing.
 - **Headless Background Service**: Want to manage everything directly from Google Chrome without any desktop window open? Run the silent background service and control all downloads 100% inside your browser!
 - **Modern Desktop GUI**: Sleek dark-mode interface built with CustomTkinter, clipboard auto-paste, live download progress (speed, percentage, ETA), and built-in music player launcher.
 - **Privacy & Ad-Free**: Runs 100% locally on your machine. No suspicious web converters, no popups, no tracking.
@@ -27,7 +28,7 @@ Browser extensions are strictly sandboxed by Chrome:
 
 ### The Solution: Silent Background Mode
 With our hybrid architecture, you **never** need to look at or interact with the desktop window if you prefer not to:
-1. Run `start_background_service.vbs`. The helper runs completely invisibly in the background.
+1. Run `start_background_service.vbs` inside `YouTubeToMP3/`. The helper runs completely invisibly in the background.
 2. Open YouTube in Google Chrome.
 3. Click the **"Download MP3"** button under any video, or use the Extension Popup.
 4. The file is downloaded in maximum 320 kbps quality and saved straight to your Music folder!
@@ -43,6 +44,7 @@ With our hybrid architecture, you **never** need to look at or interact with the
 
 Install required Python libraries:
 ```bash
+cd YouTubeToMP3
 pip install -r requirements.txt
 ```
 
@@ -52,9 +54,12 @@ pip install -r requirements.txt
 
 ### 2. Launch Options
 
+Inside the `YouTubeToMP3/` folder:
+
 | File | Description |
 | :--- | :--- |
-| **`launch_gui_silent.vbs`** | Launches the modern Desktop GUI silently without a terminal window. |
+| **`YouTubeToMP3.exe`** | **Native Windows App**: Double-click to launch the GUI directly with **zero CMD / terminal windows**. |
+| **`launch_gui_silent.vbs`** | Launches the Desktop GUI silently via VBScript without a terminal window. |
 | **`launch_gui.bat`** | Launches the Desktop GUI with console output (ideal for debugging). |
 | **`start_background_service.vbs`** | Launches the **silent background daemon** so you can manage downloads exclusively via Chrome. |
 | **`stop_background_service.bat`** | Stops the background service at any time. |
@@ -68,9 +73,9 @@ pip install -r requirements.txt
    chrome://extensions/
    ```
 2. Enable **Developer mode** in the top-right corner.
-3. Click **Load unpacked** (Cargar descomprimida) and select the `extension` folder inside this repository:
+3. Click **Load unpacked** (Cargar descomprimida) and select the `extension` folder inside `YouTubeToMP3`:
    ```text
-   ...\YouTubeToMP3\extension
+   ...\YouTubeToMP3\YouTubeToMP3\extension
    ```
 
 Now, whenever you browse any YouTube video, a red **`Download MP3`** button will appear right next to the "Like" and "Share" buttons!
@@ -90,28 +95,35 @@ C:\Users\<Your-Username>\Music\YouTube MP3
 ## 🛠️ Repository Structure
 
 ```text
-YouTubeToMP3/
-├── core/
-│   ├── downloader.py          # yt-dlp & FFmpeg audio extraction core
-│   └── server.py              # Lightweight local API server (CORS enabled)
-├── extension/
-│   ├── manifest.json          # Chrome Extension Manifest V3
-│   ├── content.js             # YouTube in-page button injection & toasts
-│   ├── content.css            # YouTube button and toast styling
-│   ├── popup.html             # Extension popup interface
-│   ├── popup.css              # Popup styling
-│   ├── popup.js               # Popup logic & API client
-│   └── icons/                 # Extension icons (16px, 48px, 128px)
-├── tools/
-│   ├── ffmpeg.exe             # High-performance audio converter
-│   └── ffprobe.exe            # Media stream inspector
-├── gui.py                     # CustomTkinter modern dark GUI
-├── main.py                    # Application entry point (GUI or Headless)
-├── launch_gui.bat             # Desktop GUI launcher with console
-├── launch_gui_silent.vbs      # Silent Desktop GUI launcher
-├── start_background_service.vbs # Headless background service launcher
-├── stop_background_service.bat  # Background service stopper
-└── requirements.txt           # Python package dependencies
+YouTubeToMP3/                  # Repository Root
+├── README.md                  # Documentation
+├── LICENSE                    # MIT License
+├── .gitignore                 # Git ignore rules
+├── .gitattributes             # Git attributes
+└── YouTubeToMP3/              # Application Directory
+    ├── YouTubeToMP3.exe       # Native Zero-CMD App Launcher
+    ├── main.py                # Application entry point (GUI or Headless)
+    ├── gui.py                 # CustomTkinter modern dark GUI
+    ├── app.ico                # Application Icon
+    ├── requirements.txt       # Python package dependencies
+    ├── launch_gui.bat         # Desktop GUI launcher with console
+    ├── launch_gui_silent.vbs  # Silent Desktop GUI launcher
+    ├── start_background_service.vbs # Headless background service launcher
+    ├── stop_background_service.bat  # Background service stopper
+    ├── core/
+    │   ├── downloader.py      # yt-dlp & FFmpeg audio extraction core
+    │   └── server.py          # Lightweight local API server (CORS enabled)
+    ├── tools/
+    │   ├── ffmpeg.exe         # High-performance audio converter
+    │   └── ffprobe.exe        # Media stream inspector
+    └── extension/
+        ├── manifest.json      # Chrome Extension Manifest V3
+        ├── content.js         # YouTube in-page button injection & toasts
+        ├── content.css        # YouTube button and toast styling
+        ├── popup.html         # Extension popup interface
+        ├── popup.css          # Popup styling
+        ├── popup.js           # Popup logic & API client
+        └── icons/             # Extension icons (16px, 48px, 128px)
 ```
 
 ---

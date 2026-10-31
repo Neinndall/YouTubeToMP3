@@ -4,6 +4,15 @@ import time
 import queue
 import threading
 
+# Prevent any child process (FFmpeg, Node.js, etc.) from flashing a black CMD console
+if sys.platform == 'win32':
+    import subprocess
+    _orig_popen = subprocess.Popen
+    def _silent_popen(*args, **kwargs):
+        kwargs['creationflags'] = kwargs.get('creationflags', 0) | subprocess.CREATE_NO_WINDOW
+        return _orig_popen(*args, **kwargs)
+    subprocess.Popen = _silent_popen
+
 # Ensure the root application directory is in sys.path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 if BASE_DIR not in sys.path:
