@@ -11,20 +11,20 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 from PIL import Image
 
-# Asegurar que el directorio de la aplicación esté en sys.path
+# Ensure the application directory is in sys.path
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 if APP_DIR not in sys.path:
     sys.path.insert(0, APP_DIR)
 
-# Importar módulos locales
+# Import local modules
 from core.downloader import get_video_info, download_audio
 from core.server import state as server_state, start_server_thread
 
-# Configuración básica de CustomTkinter
+# CustomTkinter base configuration
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("blue")
 
-CONFIG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
+CONFIG_FILE = os.path.join(APP_DIR, "config.json")
 DEFAULT_MUSIC_DIR = os.path.join(os.path.expanduser("~"), "Music", "YouTube MP3")
 
 def load_config():
@@ -51,11 +51,11 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("YouTube to MP3 - Descargador de Música")
+        self.title("YouTube to MP3 - Audio Downloader")
         self.geometry("760x780")
         self.minsize(680, 640)
 
-        # Cargar configuración
+        # Load configuration
         self.config_data = load_config()
         self.output_folder = self.config_data.get("output_folder", DEFAULT_MUSIC_DIR)
         self.quality = self.config_data.get("quality", "320")
@@ -65,27 +65,27 @@ class App(ctk.CTk):
 
         server_state.output_folder = self.output_folder
 
-        # Colas de tareas
+        # Task queues & state
         self.download_queue = queue.Queue()
         self.is_downloading = False
         self.current_preview_url = ""
 
-        # Construir Interfaz
+        # Build user interface
         self.build_ui()
 
-        # Iniciar Servidor Local en segundo plano para la Extensión de Chrome
+        # Start backend API server for the Chrome extension
         self.server_thread = None
         self.start_backend_server()
 
-        # Monitor de cola de descargas periódico
+        # Download queue polling loop
         self.after(500, self.check_queue_loop)
 
     def build_ui(self):
-        # Frame Principal con margen
+        # Main scrollable container
         self.main_container = ctk.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
         self.main_container.pack(fill="both", expand=True, padx=20, pady=15)
 
-        # 1. Cabecera (Header)
+        # 1. Header
         self.header_frame = ctk.CTkFrame(self.main_container, fg_color="#18181b", corner_radius=12)
         self.header_frame.pack(fill="x", pady=(0, 15), ipady=8)
 
@@ -105,19 +105,19 @@ class App(ctk.CTk):
 
         self.lbl_subtitle = ctk.CTkLabel(
             title_box, 
-            text="Descarga canciones en MP3 con máxima fidelidad (320 kbps) y carátulas integradas", 
+            text="Download songs in high-fidelity MP3 (up to 320 kbps) with embedded album art", 
             font=ctk.CTkFont(size=12),
             text_color="#a1a1aa"
         )
         self.lbl_subtitle.pack(anchor="w")
 
-        # Badge de Estado de la Extensión
+        # Chrome Extension Status Badge
         self.badge_frame = ctk.CTkFrame(header_content, fg_color="#27272a", corner_radius=20)
         self.badge_frame.pack(side="right", padx=(10, 0), pady=5)
 
         self.lbl_badge = ctk.CTkLabel(
             self.badge_frame,
-            text="🟢 Extensión Chrome: Lista",
+            text="🟢 Chrome Extension: Ready",
             font=ctk.CTkFont(size=11, weight="bold"),
             text_color="#4ade80",
             padx=12,
@@ -125,13 +125,13 @@ class App(ctk.CTk):
         )
         self.lbl_badge.pack()
 
-        # 2. Entrada de URL
+        # 2. URL Input Card
         self.input_card = ctk.CTkFrame(self.main_container, fg_color="#202023", corner_radius=12)
         self.input_card.pack(fill="x", pady=(0, 15), padx=2, ipady=5)
 
         lbl_input = ctk.CTkLabel(
             self.input_card, 
-            text="🔗 Enlace del vídeo o canción de YouTube:", 
+            text="🔗 YouTube Video or Song URL:", 
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="#f4f4f5"
         )
@@ -152,7 +152,7 @@ class App(ctk.CTk):
 
         self.btn_paste = ctk.CTkButton(
             entry_box, 
-            text="📋 Pegar", 
+            text="📋 Paste", 
             width=80, 
             height=40,
             fg_color="#3b82f6",
@@ -174,17 +174,17 @@ class App(ctk.CTk):
         )
         self.btn_clear.pack(side="left")
 
-        # 3. Tarjeta de Previsualización (Thumbnail + Info)
+        # 3. Preview Card (Thumbnail + Metadata)
         self.preview_card = ctk.CTkFrame(self.main_container, fg_color="#18181b", corner_radius=12)
         self.preview_card.pack(fill="x", pady=(0, 15), padx=2)
 
         self.preview_content = ctk.CTkFrame(self.preview_card, fg_color="transparent")
         self.preview_content.pack(fill="x", padx=12, pady=12)
 
-        # Imagen Thumbnail
+        # Thumbnail Image
         self.lbl_thumb = ctk.CTkLabel(
             self.preview_content, 
-            text="🎵\nSin vídeo seleccionado", 
+            text="🎵\nNo video selected", 
             width=140, 
             height=90, 
             fg_color="#27272a", 
@@ -193,13 +193,13 @@ class App(ctk.CTk):
         )
         self.lbl_thumb.pack(side="left", padx=(0, 12))
 
-        # Información del Vídeo
+        # Metadata Box
         self.info_box = ctk.CTkFrame(self.preview_content, fg_color="transparent")
         self.info_box.pack(side="left", fill="both", expand=True)
 
         self.lbl_preview_title = ctk.CTkLabel(
             self.info_box, 
-            text="Pega un enlace para ver los datos de la canción", 
+            text="Paste a link to view song details", 
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="#f4f4f5",
             anchor="w",
@@ -210,7 +210,7 @@ class App(ctk.CTk):
 
         self.lbl_preview_channel = ctk.CTkLabel(
             self.info_box, 
-            text="Canal / Artista: --", 
+            text="Channel / Artist: --", 
             font=ctk.CTkFont(size=12),
             text_color="#a1a1aa",
             anchor="w"
@@ -219,24 +219,24 @@ class App(ctk.CTk):
 
         self.lbl_preview_duration = ctk.CTkLabel(
             self.info_box, 
-            text="Duración: --:--", 
+            text="Duration: --:--", 
             font=ctk.CTkFont(size=12),
             text_color="#a1a1aa",
             anchor="w"
         )
         self.lbl_preview_duration.pack(fill="x", anchor="w", pady=(2, 0))
 
-        # 4. Configuración (Calidad + Carpeta de descarga)
+        # 4. Settings Card (Quality + Output Folder)
         self.settings_card = ctk.CTkFrame(self.main_container, fg_color="#202023", corner_radius=12)
         self.settings_card.pack(fill="x", pady=(0, 15), padx=2, ipady=5)
 
         settings_grid = ctk.CTkFrame(self.settings_card, fg_color="transparent")
         settings_grid.pack(fill="x", padx=15, pady=10)
 
-        # Calidad
+        # Quality
         lbl_quality = ctk.CTkLabel(
             settings_grid, 
-            text="Calidad MP3:", 
+            text="MP3 Quality:", 
             font=ctk.CTkFont(size=13, weight="bold")
         )
         lbl_quality.grid(row=0, column=0, sticky="w", pady=(0, 8), padx=(0, 10))
@@ -244,23 +244,22 @@ class App(ctk.CTk):
         self.quality_var = ctk.StringVar(value=f"{self.quality} kbps")
         self.combo_quality = ctk.CTkOptionMenu(
             settings_grid,
-            values=["320 kbps (Máxima Fidelidad)", "256 kbps (Muy Alta)", "192 kbps (Estándar)", "128 kbps (Ligero)"],
+            values=["320 kbps (Maximum Quality)", "256 kbps (High Quality)", "192 kbps (Standard)", "128 kbps (Lightweight)"],
             command=self.on_quality_changed,
             width=230,
             height=32,
             corner_radius=8
         )
-        # Seleccionar según configuración
-        for opt in ["320 kbps (Máxima Fidelidad)", "256 kbps (Muy Alta)", "192 kbps (Estándar)", "128 kbps (Ligero)"]:
+        for opt in ["320 kbps (Maximum Quality)", "256 kbps (High Quality)", "192 kbps (Standard)", "128 kbps (Lightweight)"]:
             if opt.startswith(self.quality):
                 self.combo_quality.set(opt)
                 break
         self.combo_quality.grid(row=0, column=1, sticky="w", pady=(0, 8))
 
-        # Carpeta
+        # Folder
         lbl_folder = ctk.CTkLabel(
             settings_grid, 
-            text="Guardar en:", 
+            text="Save to:", 
             font=ctk.CTkFont(size=13, weight="bold")
         )
         lbl_folder.grid(row=1, column=0, sticky="w", padx=(0, 10))
@@ -278,7 +277,7 @@ class App(ctk.CTk):
 
         self.btn_browse = ctk.CTkButton(
             folder_actions, 
-            text="📁 Cambiar", 
+            text="📁 Browse", 
             width=80, 
             height=30,
             fg_color="#374151",
@@ -290,7 +289,7 @@ class App(ctk.CTk):
 
         self.btn_open_folder = ctk.CTkButton(
             folder_actions, 
-            text="📂 Abrir Carpeta", 
+            text="📂 Open Folder", 
             width=95, 
             height=30,
             fg_color="#059669",
@@ -300,13 +299,13 @@ class App(ctk.CTk):
         )
         self.btn_open_folder.pack(side="left")
 
-        # 5. Botón de Acción Principal y Progreso
+        # 5. Main Action Button & Progress
         self.action_card = ctk.CTkFrame(self.main_container, fg_color="#18181b", corner_radius=12)
         self.action_card.pack(fill="x", pady=(0, 15), padx=2, ipady=8)
 
         self.btn_download = ctk.CTkButton(
             self.action_card,
-            text="⬇️ DESCARGAR CANCIÓN EN MP3",
+            text="⬇️ DOWNLOAD SONG AS MP3",
             font=ctk.CTkFont(size=16, weight="bold"),
             height=50,
             fg_color="#dc2626",
@@ -316,26 +315,26 @@ class App(ctk.CTk):
         )
         self.btn_download.pack(fill="x", padx=15, pady=(12, 10))
 
-        # Barra de Progreso
+        # Progress bar
         self.progress_bar = ctk.CTkProgressBar(self.action_card, height=12, corner_radius=6)
         self.progress_bar.set(0.0)
         self.progress_bar.pack(fill="x", padx=15, pady=(0, 6))
 
         self.lbl_status = ctk.CTkLabel(
             self.action_card,
-            text="Preparado para descargar cualquier canción.",
+            text="Ready to download any song.",
             font=ctk.CTkFont(size=13),
             text_color="#d4d4d8"
         )
         self.lbl_status.pack(pady=(0, 10))
 
-        # 6. Historial de Canciones Descargadas
+        # 6. Download History
         self.history_card = ctk.CTkFrame(self.main_container, fg_color="#202023", corner_radius=12)
         self.history_card.pack(fill="both", expand=True, padx=2, pady=(0, 10))
 
         lbl_hist = ctk.CTkLabel(
             self.history_card, 
-            text="🎵 Canciones Descargadas Recientemente:", 
+            text="🎵 Recently Downloaded Songs:", 
             font=ctk.CTkFont(size=14, weight="bold"),
             text_color="#f4f4f5"
         )
@@ -346,7 +345,7 @@ class App(ctk.CTk):
 
         self.history_empty_lbl = ctk.CTkLabel(
             self.history_list, 
-            text="Aún no has descargado ninguna canción en esta sesión.", 
+            text="No songs downloaded in this session yet.", 
             text_color="#71717a",
             font=ctk.CTkFont(size=12, slant="italic")
         )
@@ -370,10 +369,10 @@ class App(ctk.CTk):
     def clear_input(self):
         self.entry_url.delete(0, tk.END)
         self.current_preview_url = ""
-        self.lbl_preview_title.configure(text="Pega un enlace para ver los datos de la canción")
-        self.lbl_preview_channel.configure(text="Canal / Artista: --")
-        self.lbl_preview_duration.configure(text="Duración: --:--")
-        self.lbl_thumb.configure(image=None, text="🎵\nSin vídeo seleccionado")
+        self.lbl_preview_title.configure(text="Paste a link to view song details")
+        self.lbl_preview_channel.configure(text="Channel / Artist: --")
+        self.lbl_preview_duration.configure(text="Duration: --:--")
+        self.lbl_thumb.configure(image=None, text="🎵\nNo video selected")
 
     def on_url_submitted(self):
         url = self.entry_url.get().strip()
@@ -383,7 +382,7 @@ class App(ctk.CTk):
             return
 
         self.current_preview_url = url
-        self.lbl_preview_title.configure(text="🔍 Obteniendo datos del vídeo...")
+        self.lbl_preview_title.configure(text="🔍 Fetching video details...")
         threading.Thread(target=self._fetch_preview_thread, args=(url,), daemon=True).start()
 
     def _fetch_preview_thread(self, url):
@@ -392,16 +391,16 @@ class App(ctk.CTk):
 
     def _update_preview_ui(self, info):
         if not info.get("success"):
-            self.lbl_preview_title.configure(text="⚠️ No se pudo obtener la información previa (se descargará de todas formas)")
+            self.lbl_preview_title.configure(text="⚠️ Could not fetch preview details (will still attempt download)")
             return
 
-        title = info.get("title", "Canción")
+        title = info.get("title", "Song")
         if info.get("is_playlist"):
-            title = f"📂 [Lista: {info.get('item_count')} canciones] {title}"
+            title = f"📂 [Playlist: {info.get('item_count')} tracks] {title}"
 
         self.lbl_preview_title.configure(text=title)
-        self.lbl_preview_channel.configure(text=f"Canal / Artista: {info.get('uploader', 'Desconocido')}")
-        self.lbl_preview_duration.configure(text=f"Duración: {info.get('duration_str', '--:--')}")
+        self.lbl_preview_channel.configure(text=f"Channel / Artist: {info.get('uploader', 'Unknown')}")
+        self.lbl_preview_duration.configure(text=f"Duration: {info.get('duration_str', '--:--')}")
 
         thumb_url = info.get("thumbnail")
         if thumb_url:
@@ -413,7 +412,6 @@ class App(ctk.CTk):
             with urllib.request.urlopen(req, timeout=5) as response:
                 img_data = response.read()
             pil_img = Image.open(io.BytesIO(img_data))
-            # Escalar a tamaño apropiado manteniendo relación de aspecto
             pil_img = pil_img.resize((150, 85), Image.Resampling.LANCZOS)
             ctk_img = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(150, 85))
             self.after(0, lambda: self.lbl_thumb.configure(image=ctk_img, text=""))
@@ -421,14 +419,13 @@ class App(ctk.CTk):
             pass
 
     def on_quality_changed(self, choice):
-        # Extraer los dígitos antes de " kbps"
         q = choice.split()[0]
         self.quality = q
         self.config_data["quality"] = q
         save_config(self.config_data)
 
     def choose_folder(self):
-        new_dir = filedialog.askdirectory(initialdir=self.output_folder, title="Selecciona la carpeta para guardar canciones MP3")
+        new_dir = filedialog.askdirectory(initialdir=self.output_folder, title="Select folder to save MP3 files")
         if new_dir:
             self.output_folder = new_dir
             self.config_data["output_folder"] = new_dir
@@ -441,25 +438,23 @@ class App(ctk.CTk):
             subprocess.Popen(f'explorer "{os.path.abspath(self.output_folder)}"')
 
     def queue_download(self, url: str, quality: str = "320"):
-        """Permite añadir descargas desde la GUI o desde el servidor de la extensión."""
         self.download_queue.put((url, quality))
 
     def start_download_from_gui(self):
         url = self.entry_url.get().strip()
         if not url:
-            messagebox.showwarning("Falta enlace", "Por favor pega un enlace de YouTube antes de descargar.")
+            messagebox.showwarning("Missing URL", "Please enter a YouTube link before downloading.")
             return
-        self.btn_download.configure(state="disabled", text="⏳ Añadido a la cola...")
+        self.btn_download.configure(state="disabled", text="⏳ Adding to queue...")
         self.queue_download(url, self.quality)
 
     def check_queue_loop(self):
-        """Revisa periódicamente si hay descargas en cola."""
         if not self.is_downloading and not self.download_queue.empty():
             url, quality = self.download_queue.get()
             self.is_downloading = True
-            self.btn_download.configure(state="disabled", text="⏳ Descargando...")
+            self.btn_download.configure(state="disabled", text="⏳ Downloading...")
             self.progress_bar.set(0.0)
-            self.lbl_status.configure(text="Conectando con YouTube...", text_color="#38bdf8")
+            self.lbl_status.configure(text="Connecting to YouTube...", text_color="#38bdf8")
             threading.Thread(target=self._run_download_worker, args=(url, quality), daemon=True).start()
 
         self.after(500, self.check_queue_loop)
@@ -479,40 +474,38 @@ class App(ctk.CTk):
             self.progress_bar.set(pct / 100.0)
             speed = pdata.get('speed', '')
             eta = pdata.get('eta', '')
-            title = pdata.get('title', 'canción')
             self.lbl_status.configure(
-                text=f"Descargando: {pct:.1f}% | Velocidad: {speed} | Restante: {eta}",
+                text=f"Downloading: {pct:.1f}% | Speed: {speed} | Remaining: {eta}",
                 text_color="#38bdf8"
             )
         elif status == 'converting':
             self.progress_bar.set(1.0)
             self.lbl_status.configure(
-                text="🎵 Convirtiendo a MP3 e incrustando carátula y metadatos...",
+                text="🎵 Converting to MP3 & embedding album art and metadata...",
                 text_color="#fbbf24"
             )
         elif status == 'error':
             self.progress_bar.set(0.0)
-            err = pdata.get('error', 'Error desconocido')
+            err = pdata.get('error', 'Unknown error')
             self.lbl_status.configure(text=f"❌ Error: {err[:80]}", text_color="#ef4444")
 
     def _on_download_complete(self, res):
         self.is_downloading = False
-        self.btn_download.configure(state="normal", text="⬇️ DESCARGAR CANCIÓN EN MP3")
+        self.btn_download.configure(state="normal", text="⬇️ DOWNLOAD SONG AS MP3")
 
         if res.get("success"):
             self.progress_bar.set(1.0)
-            title = res.get("title", "Canción")
+            title = res.get("title", "Song")
             filepath = res.get("filepath")
             self.lbl_status.configure(
-                text=f"✅ ¡Descarga completada! Guardado como MP3.",
+                text=f"✅ Download complete! Saved as MP3.",
                 text_color="#4ade80"
             )
-            # Añadir al historial
             self.add_to_history(title, filepath)
         else:
-            err = res.get("error", "Error desconocido")
+            err = res.get("error", "Unknown error")
             self.lbl_status.configure(
-                text=f"❌ Error al descargar: {err[:90]}",
+                text=f"❌ Download failed: {err[:90]}",
                 text_color="#ef4444"
             )
 
@@ -535,7 +528,7 @@ class App(ctk.CTk):
         if filepath and os.path.exists(filepath):
             btn_play = ctk.CTkButton(
                 item_row,
-                text="▶️ Reproducir",
+                text="▶️ Play",
                 width=85,
                 height=28,
                 fg_color="#2563eb",
@@ -547,7 +540,7 @@ class App(ctk.CTk):
 
             btn_open = ctk.CTkButton(
                 item_row,
-                text="📁 Ver archivo",
+                text="📁 Show File",
                 width=85,
                 height=28,
                 fg_color="#3f3f46",
@@ -558,23 +551,22 @@ class App(ctk.CTk):
             btn_open.pack(side="right", padx=4)
 
     def start_backend_server(self):
-        """Inicia el servidor local para la Extensión de Chrome."""
+        """Starts the local backend server for the Chrome Extension."""
         try:
             start_server_thread(
                 download_callback=lambda url, q: self.after(0, self.on_external_download_request, url, q),
                 output_folder=self.output_folder
             )
-            self.lbl_badge.configure(text="🟢 Extensión Chrome: Lista", text_color="#4ade80")
-        except Exception as e:
-            self.lbl_badge.configure(text="🟡 Servidor no iniciado", text_color="#facc15")
+            self.lbl_badge.configure(text="🟢 Chrome Extension: Ready", text_color="#4ade80")
+        except Exception:
+            self.lbl_badge.configure(text="🟡 Server Offline", text_color="#facc15")
 
     def on_external_download_request(self, url: str, quality: str):
-        """Llamado cuando la extensión de Chrome envía una URL."""
+        """Triggered when the Chrome extension sends a download request."""
         self.entry_url.delete(0, tk.END)
         self.entry_url.insert(0, url)
         self.on_url_submitted()
         self.queue_download(url, quality or self.quality)
-        # Traer la ventana al frente si estaba detrás
         self.lift()
         self.attributes('-topmost', True)
         self.after_idle(self.attributes, '-topmost', False)

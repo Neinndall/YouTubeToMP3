@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Local config & downloads
+config.json
+*.mp3
+*.webm
+*.m4a
+*.part
+*.temp
+
+# OS files
+.DS_Store
+Thumbs.db

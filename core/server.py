@@ -12,7 +12,7 @@ class ServerState:
     def __init__(self):
         self.is_downloading = False
         self.progress = 0.0
-        self.status_message = "Listo para descargar"
+        self.status_message = "Ready to download"
         self.current_title = ""
         self.speed = ""
         self.eta = ""
@@ -29,19 +29,19 @@ class ServerState:
             self.speed = data.get('speed', '')
             self.eta = data.get('eta', '')
             self.current_title = data.get('title', self.current_title)
-            self.status_message = f"Descargando ({self.progress:.0f}%)"
+            self.status_message = f"Downloading ({self.progress:.0f}%)"
         elif status == 'converting':
-            self.status_message = "Convirtiendo a MP3..."
+            self.status_message = "Converting to MP3 & embedding album art..."
             self.progress = 100.0
         elif status == 'finished':
             self.is_downloading = False
             self.progress = 100.0
-            self.status_message = "¡Descarga completada!"
+            self.status_message = "Download completed!"
             self.last_downloaded = data.get('filepath')
             self.current_title = data.get('title', '')
         elif status == 'error':
             self.is_downloading = False
-            self.status_message = "Error en la descarga"
+            self.status_message = "Download error"
             self.last_error = data.get('error')
 
 state = ServerState()
@@ -99,7 +99,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Parámetro 'url' requerido."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"error": "Missing 'url' parameter."}).encode('utf-8'))
                 return
 
             if state.download_queue_callback:
@@ -108,13 +108,13 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"success": True, "message": "Descarga en cola."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"success": True, "message": "Download queued."}).encode('utf-8'))
             else:
                 self.send_response(503)
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Gestor de descargas no disponible."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"error": "Download manager not ready."}).encode('utf-8'))
 
         elif parsed.path == '/open_folder':
             folder = state.output_folder
@@ -149,7 +149,7 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Campo 'url' requerido."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"error": "Field 'url' is required."}).encode('utf-8'))
                 return
 
             if state.download_queue_callback:
@@ -158,13 +158,13 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"success": True, "message": "Descarga iniciada."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"success": True, "message": "Download initiated."}).encode('utf-8'))
             else:
                 self.send_response(503)
                 self._send_cors_headers()
                 self.send_header('Content-Type', 'application/json; charset=utf-8')
                 self.end_headers()
-                self.wfile.write(json.dumps({"error": "Gestor de descargas no disponible."}).encode('utf-8'))
+                self.wfile.write(json.dumps({"error": "Download manager not ready."}).encode('utf-8'))
 
         elif parsed.path == '/open_folder':
             folder = state.output_folder
@@ -182,14 +182,14 @@ class ApiRequestHandler(http.server.BaseHTTPRequestHandler):
             self.end_headers()
 
     def log_message(self, format, *args):
-        # Evitar inundar la consola con peticiones de polling
+        # Suppress request logging from flooding the terminal
         return
 
 class ReusableTCPServer(socketserver.ThreadingTCPServer):
     allow_reuse_address = True
 
 def start_server_thread(download_callback=None, output_folder=None, port=PORT):
-    """Inicia el servidor HTTP en segundo plano."""
+    """Starts the background HTTP API server."""
     if download_callback:
         state.download_queue_callback = download_callback
     if output_folder:

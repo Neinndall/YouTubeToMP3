@@ -1,51 +1,121 @@
-# ?? YouTube to MP3 Downloader Pro
+# ğŸµ YouTube to MP3 Downloader Pro
 
-Aplicaci¨®n de escritorio ultra r¨¢pida y moderna con **Extensi¨®n para Google Chrome** complementaria para descargar canciones y v¨ªdeos de YouTube en formato **MP3 de m¨¢xima calidad (320 kbps)** con car¨¢tula y etiquetas ID3 integradas.
-
----
-
-## ?? Caracter¨ªsticas Principales
-
-- **Fidelidad Sonora M¨¢xima**: Extracci¨®n en MP3 hasta **320 kbps** utilizando FFmpeg de alto rendimiento.
-- **Car¨¢tulas y Metadatos Autom¨¢ticos**: Incrusta la portada original en alta definici¨®n y los nombres de Artista/Canci¨®n directamente en el archivo MP3 (compatible con Spotify local, Groove, Car Audio, etc.).
-- **Doble Modo de Uso**:
-  1. **App de Escritorio Moderna**: Interfaz gr¨¢fica oscura con CustomTkinter, barra de progreso en vivo, previsualizaci¨®n de v¨ªdeo y bot¨®n de reproducci¨®n directa.
-  2. **Extensi¨®n para Google Chrome**: Inyecta un bot¨®n nativo `[ ?? Descargar MP3 ]` directamente en la interfaz de YouTube (debajo de cualquier v¨ªdeo) y a?ade un men¨² emergente con 1 clic.
-- **Portapapeles Inteligente**: Bot¨®n para pegar instant¨¢neamente desde el portapapeles.
-- **Sin Publicidad ni L¨ªmites**: Funciona de forma 100% local en tu ordenador sin pasar por p¨¢ginas web dudosas ni publicidad invasiva.
+A fast, lightweight, and modern **YouTube to MP3 audio downloader** featuring a standalone **Desktop GUI** and a companion **Google Chrome Extension (Manifest V3)** for 1-click downloads with up to **320 kbps** audio quality, embedded high-resolution album art, and full ID3 metadata.
 
 ---
 
-## ?? C¨®mo Iniciar la Aplicaci¨®n de Escritorio
+## ğŸš€ Key Features
 
-Simplemente haz doble clic en cualquiera de estos dos archivos:
-- **`iniciar.bat`**: Inicia la aplicaci¨®n con registro en consola.
-- **`iniciar_sin_consola.vbs`**: Inicia la aplicaci¨®n de forma limpia y transparente sin ventana negra de terminal.
+- **Highest Audio Quality**: Converts audio to true high-bitrate MP3 (320 kbps, 256 kbps, 192 kbps, or 128 kbps) using embedded FFmpeg.
+- **Embedded HD Album Art & ID3 Tags**: Automatically fetches original high-res thumbnails and tags (Title, Artist, Channel, Year) and embeds them directly into the `.mp3` file. Compatible with Windows Media Player, Groove, VLC, Spotify local files, and mobile/car audio players.
+- **Chrome Extension (1-Click Download)**: Injects a native-looking `[ ğŸµ Download MP3 ]` button right into YouTube's action bar under any video, plus an intuitive popup menu.
+- **Headless Background Service**: Want to manage everything directly from Google Chrome without any desktop window open? Run the silent background service and control all downloads 100% inside your browser!
+- **Modern Desktop GUI**: Sleek dark-mode interface built with CustomTkinter, clipboard auto-paste, live download progress (speed, percentage, ETA), and built-in music player launcher.
+- **Privacy & Ad-Free**: Runs 100% locally on your machine. No suspicious web converters, no popups, no tracking.
 
 ---
 
-## ?? C¨®mo Instalar la Extensi¨®n de Chrome (Opcional, en 3 pasos)
+## â“ Can it be managed entirely from the Chrome Extension?
 
-1. Abre Google Chrome y ve a:
+**Yes!** 
+
+### Why can't a browser extension download YouTube audio on its own?
+Browser extensions are strictly sandboxed by Chrome:
+1. **YouTube Dynamic Cipher Protection**: YouTube regularly scrambles audio streaming URLs (`n-sig` and JS challenge tokens). Without an automated solver like `yt-dlp`, browser requests fail with 403 Forbidden or heavy throttling.
+2. **Audio Conversion & Tagging**: YouTube provides audio in Opus (WebM) or AAC (M4A). Producing authentic MP3 files with high-res embedded ID3 cover art requires FFmpeg. Running FFmpeg in WebAssembly inside Chrome's memory is slow, consumes gigabytes of RAM, and cannot write to custom local music folders.
+3. **Chrome Web Store Policy**: Google strictly forbids extensions that download YouTube videos from the Chrome Web Store.
+
+### The Solution: Silent Background Mode
+With our hybrid architecture, you **never** need to look at or interact with the desktop window if you prefer not to:
+1. Run `start_background_service.vbs`. The helper runs completely invisibly in the background.
+2. Open YouTube in Google Chrome.
+3. Click the **"Download MP3"** button under any video, or use the Extension Popup.
+4. The file is downloaded in maximum 320 kbps quality and saved straight to your Music folder!
+
+---
+
+## ğŸ“¦ Getting Started
+
+### 1. Prerequisites
+- **Windows 10 / 11**
+- **Python 3.10+**
+- **Node.js** (for YouTube JS challenge resolution)
+
+Install required Python libraries:
+```bash
+pip install -r requirements.txt
+```
+
+*(Note: FFmpeg and FFprobe binaries are already bundled inside the `tools/` folder).*
+
+---
+
+### 2. Launch Options
+
+| File | Description |
+| :--- | :--- |
+| **`launch_gui_silent.vbs`** | Launches the modern Desktop GUI silently without a terminal window. |
+| **`launch_gui.bat`** | Launches the Desktop GUI with console output (ideal for debugging). |
+| **`start_background_service.vbs`** | Launches the **silent background daemon** so you can manage downloads exclusively via Chrome. |
+| **`stop_background_service.bat`** | Stops the background service at any time. |
+
+---
+
+## ğŸ§© Installing the Chrome Extension (3 Steps)
+
+1. Open **Google Chrome** and navigate to:
    ```text
    chrome://extensions/
    ```
-2. Activa la casilla **"Modo de desarrollador"** (Developer mode) en la esquina superior derecha.
-3. Haz clic en el bot¨®n **"Cargar descomprimida"** (Load unpacked) y selecciona la carpeta:
+2. Enable **Developer mode** in the top-right corner.
+3. Click **Load unpacked** (Cargar descomprimida) and select the `extension` folder inside this repository:
    ```text
-   C:\Users\danielpriego\Downloads\Workspace\YouTubeToMP3\extension
+   ...\YouTubeToMP3\extension
    ```
 
-?Listo! Cuando est¨¦s en cualquier v¨ªdeo de YouTube:
-- Ver¨¢s un bot¨®n rojo **`Descargar MP3`** justo al lado de los botones de Like y Compartir.
-- Al hacer clic, se enviar¨¢ la descarga instant¨¢neamente a tu aplicaci¨®n de escritorio en segundo plano a 320 kbps.
+Now, whenever you browse any YouTube video, a red **`Download MP3`** button will appear right next to the "Like" and "Share" buttons!
 
 ---
 
-## ?? Ubicaci¨®n por Defecto de las Canciones
+## ğŸ“ Default Output Directory
 
-Tus canciones se guardar¨¢n autom¨¢ticamente en:
+By default, downloaded MP3s are saved in:
 ```text
-C:\Users\<tu-usuario>\Music\YouTube MP3
+C:\Users\<Your-Username>\Music\YouTube MP3
 ```
-*Puedes cambiar la carpeta de destino en cualquier momento directamente desde la interfaz de la aplicaci¨®n.*
+*You can customize the destination folder at any time directly in the Desktop GUI or configuration.*
+
+---
+
+## ğŸ› ï¸ Repository Structure
+
+```text
+YouTubeToMP3/
+â”œâ”€â”€ core/
+â”‚   â”œâ”€â”€ downloader.py          # yt-dlp & FFmpeg audio extraction core
+â”‚   â””â”€â”€ server.py              # Lightweight local API server (CORS enabled)
+â”œâ”€â”€ extension/
+â”‚   â”œâ”€â”€ manifest.json          # Chrome Extension Manifest V3
+â”‚   â”œâ”€â”€ content.js             # YouTube in-page button injection & toasts
+â”‚   â”œâ”€â”€ content.css            # YouTube button and toast styling
+â”‚   â”œâ”€â”€ popup.html             # Extension popup interface
+â”‚   â”œâ”€â”€ popup.css              # Popup styling
+â”‚   â”œâ”€â”€ popup.js               # Popup logic & API client
+â”‚   â””â”€â”€ icons/                 # Extension icons (16px, 48px, 128px)
+â”œâ”€â”€ tools/
+â”‚   â”œâ”€â”€ ffmpeg.exe             # High-performance audio converter
+â”‚   â””â”€â”€ ffprobe.exe            # Media stream inspector
+â”œâ”€â”€ gui.py                     # CustomTkinter modern dark GUI
+â”œâ”€â”€ main.py                    # Application entry point (GUI or Headless)
+â”œâ”€â”€ launch_gui.bat             # Desktop GUI launcher with console
+â”œâ”€â”€ launch_gui_silent.vbs      # Silent Desktop GUI launcher
+â”œâ”€â”€ start_background_service.vbs # Headless background service launcher
+â”œâ”€â”€ stop_background_service.bat  # Background service stopper
+â””â”€â”€ requirements.txt           # Python package dependencies
+```
+
+---
+
+## ğŸ“œ License
+
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.

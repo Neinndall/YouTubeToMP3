@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>YouTube to MP3</title>
@@ -13,60 +13,60 @@
     </div>
     <div id="statusBadge" class="status-badge offline">
       <span class="dot"></span>
-      <span id="statusText">Desconectado</span>
+      <span id="statusText">Disconnected</span>
     </div>
   </div>
 
   <div class="container">
-    <!-- Vista cuando se está en un vídeo de YouTube -->
+    <!-- Active YouTube Video Card -->
     <div id="videoCard" class="card hidden">
       <div class="thumb-container">
         <img id="videoThumb" src="" alt="Thumbnail">
         <div id="videoDuration" class="duration-badge">--:--</div>
       </div>
       <div class="video-info">
-        <div id="videoTitle" class="video-title">Cargando...</div>
+        <div id="videoTitle" class="video-title">Loading...</div>
       </div>
     </div>
 
-    <!-- Entrada manual cuando no se está en un vídeo de YouTube -->
+    <!-- Manual URL Entry -->
     <div id="manualCard" class="card">
-      <label for="inputUrl">Enlace de YouTube:</label>
+      <label for="inputUrl">YouTube URL:</label>
       <input type="text" id="inputUrl" placeholder="https://www.youtube.com/watch?v=...">
     </div>
 
-    <!-- Opciones de Calidad -->
+    <!-- Quality Selector -->
     <div class="quality-row">
-      <label for="selectQuality">Calidad:</label>
+      <label for="selectQuality">Quality:</label>
       <select id="selectQuality">
-        <option value="320" selected>320 kbps (Máxima Fidelidad)</option>
-        <option value="256">256 kbps (Muy Alta)</option>
-        <option value="192">192 kbps (Estándar)</option>
-        <option value="128">128 kbps (Ligero)</option>
+        <option value="320" selected>320 kbps (Maximum Quality)</option>
+        <option value="256">256 kbps (High Quality)</option>
+        <option value="192">192 kbps (Standard)</option>
+        <option value="128">128 kbps (Lightweight)</option>
       </select>
     </div>
 
-    <!-- Botón de Descarga -->
+    <!-- Action Button -->
     <button id="btnDownload" class="btn-primary">
-      <span>⬇️</span> Descargar en MP3
+      <span>⬇️</span> Download as MP3
     </button>
 
-    <!-- Estado y Progreso -->
+    <!-- Progress Status -->
     <div id="progressBox" class="progress-box hidden">
       <div class="progress-bar-bg">
         <div id="progressBar" class="progress-bar-fill"></div>
       </div>
-      <div id="lblProgress" class="progress-label">Descargando...</div>
+      <div id="lblProgress" class="progress-label">Downloading...</div>
     </div>
 
-    <!-- Botón Abrir Carpeta -->
+    <!-- Open Folder Button -->
     <button id="btnOpenFolder" class="btn-secondary">
-      <span>📂</span> Abrir Carpeta de Música
+      <span>📂</span> Open Music Folder
     </button>
   </div>
 
   <div id="appOfflineNotice" class="offline-notice hidden">
-    💡 <b>Nota:</b> Para descargar, abre la aplicación <code>YouTubeToMP3</code> en tu PC.
+    💡 <b>Note:</b> Make sure the <code>YouTubeToMP3</code> app or background service is running on your PC.
   </div>
 
   <script src="popup.js"></script>

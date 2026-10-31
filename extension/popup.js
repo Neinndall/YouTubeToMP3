@@ -37,12 +37,12 @@ function setServerState(online) {
   isServerOnline = online;
   if (online) {
     statusBadge.className = "status-badge online";
-    statusText.textContent = "App Conectada";
+    statusText.textContent = "App Connected";
     offlineNotice.classList.add("hidden");
     btnDownload.disabled = false;
   } else {
     statusBadge.className = "status-badge offline";
-    statusText.textContent = "Desconectado";
+    statusText.textContent = "Disconnected";
     offlineNotice.classList.remove("hidden");
   }
 }
@@ -55,9 +55,8 @@ async function detectCurrentTab() {
       videoCard.classList.remove("hidden");
       manualCard.classList.add("hidden");
 
-      videoTitle.textContent = tab.title ? tab.title.replace(" - YouTube", "") : "Vídeo de YouTube";
+      videoTitle.textContent = tab.title ? tab.title.replace(" - YouTube", "") : "YouTube Video";
 
-      // Extraer video ID para miniatura
       const match = tab.url.match(/(?:v=|\/)([a-zA-Z0-9_-]{11})/);
       if (match && match[1]) {
         const vidId = match[1];
@@ -76,14 +75,14 @@ async function detectCurrentTab() {
 async function startDownload() {
   const url = currentVideoUrl || inputUrl.value.trim();
   if (!url) {
-    alert("Por favor ingresa o abre un enlace de YouTube.");
+    alert("Please enter or navigate to a YouTube video.");
     return;
   }
 
   const quality = selectQuality.value;
 
   btnDownload.disabled = true;
-  btnDownload.innerHTML = "<span>⏳</span> Enviando descarga...";
+  btnDownload.innerHTML = "<span>⏳</span> Queuing download...";
 
   try {
     const res = await fetch(`${SERVER_URL}/download`, {
@@ -94,19 +93,19 @@ async function startDownload() {
 
     if (res.ok) {
       progressBox.classList.remove("hidden");
-      lblProgress.textContent = "Iniciando descarga...";
+      lblProgress.textContent = "Starting download...";
       progressBar.style.width = "10%";
       startStatusPolling();
     } else {
       const err = await res.json();
-      alert("Error: " + (err.error || "No se pudo iniciar la descarga"));
+      alert("Error: " + (err.error || "Could not start download"));
       btnDownload.disabled = false;
-      btnDownload.innerHTML = "<span>⬇️</span> Descargar en MP3";
+      btnDownload.innerHTML = "<span>⬇️</span> Download as MP3";
     }
   } catch (e) {
-    alert("No se pudo conectar con la aplicación de escritorio. Asegúrate de tenerla abierta.");
+    alert("Could not reach desktop application. Please ensure YouTubeToMP3 is running.");
     btnDownload.disabled = false;
-    btnDownload.innerHTML = "<span>⬇️</span> Descargar en MP3";
+    btnDownload.innerHTML = "<span>⬇️</span> Download as MP3";
   }
 }
 
@@ -122,11 +121,11 @@ function startStatusPolling() {
           const pct = Math.max(5, Math.min(100, data.progress));
           progressBar.style.width = `${pct}%`;
           lblProgress.textContent = `${data.status_message} (${pct.toFixed(0)}%)`;
-        } else if (data.status_message === "¡Descarga completada!") {
+        } else if (data.status_message === "Download completed!") {
           progressBar.style.width = "100%";
-          lblProgress.textContent = "✅ ¡Descarga completada con éxito!";
+          lblProgress.textContent = "✅ Download completed successfully!";
           btnDownload.disabled = false;
-          btnDownload.innerHTML = "<span>⬇️</span> Descargar en MP3";
+          btnDownload.innerHTML = "<span>⬇️</span> Download as MP3";
           clearInterval(pollingInterval);
         }
       }
@@ -142,11 +141,11 @@ btnOpenFolder.addEventListener("click", async () => {
   try {
     await fetch(`${SERVER_URL}/open_folder`, { method: "POST" });
   } catch (e) {
-    alert("Abre la app de escritorio para acceder directamente a la carpeta.");
+    alert("Please launch the desktop helper to access the folder directly.");
   }
 });
 
-// Inicialización
+// Initialization
 detectCurrentTab();
 checkServerStatus();
 setInterval(checkServerStatus, 3000);

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "YouTube to MP3 - Descargador Rápido",
+  "name": "YouTube to MP3 - Fast Audio Downloader",
   "version": "1.0.0",
-  "description": "Descarga canciones de YouTube en MP3 con un solo clic en máxima calidad.",
+  "description": "Download any YouTube song as high-quality MP3 (up to 320 kbps) with embedded cover art.",
   "permissions": [
     "activeTab",
     "tabs"

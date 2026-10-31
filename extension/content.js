@@ -33,14 +33,14 @@
       });
 
       if (response.ok) {
-        showToast("<b>¡Descarga iniciada!</b> La app de escritorio está descargando la canción en MP3 (320 kbps) con carátula.", "success");
+        showToast("<b>Download started!</b> The desktop helper is converting the audio to MP3 (320 kbps) with album art.", "success");
       } else {
         const err = await response.json();
-        showToast(`Error al iniciar la descarga: ${err.error || "Desconocido"}`, "error");
+        showToast(`Download error: ${err.error || "Unknown"}`, "error");
       }
     } catch (e) {
       showToast(
-        "<b>La app de escritorio no está abierta.</b><br>Abre <i>YouTubeToMP3</i> en tu PC para descargar con 1 clic.",
+        "<b>YouTubeToMP3 helper is not running.</b><br>Please start <i>YouTubeToMP3</i> on your PC to download with 1 click.",
         "error",
         6000
       );
@@ -51,7 +51,7 @@
     if (!window.location.pathname.startsWith("/watch")) return;
     if (document.getElementById(BUTTON_ID)) return;
 
-    // Buscar la barra de acciones de YouTube
+    // Search for YouTube action buttons container
     const targetContainers = [
       "#actions #top-level-buttons-computed",
       "#top-level-buttons-computed",
@@ -74,12 +74,12 @@
     const btn = document.createElement("button");
     btn.id = BUTTON_ID;
     btn.className = "yt-mp3-download-btn";
-    btn.title = "Descargar audio en MP3 (320 kbps con carátula)";
+    btn.title = "Download audio as MP3 (320 kbps with album art)";
     btn.innerHTML = `
       <svg viewBox="0 0 24 24" width="18" height="18">
         <path d="M12 3v11.17l4.59-4.59L18 11l-6 6-6-6 1.41-1.41L11 14.17V3h1zm-7 16h14v2H5v-2z"/>
       </svg>
-      <span>Descargar MP3</span>
+      <span>Download MP3</span>
     `;
 
     btn.addEventListener("click", (e) => {
@@ -91,13 +91,13 @@
     container.appendChild(btn);
   }
 
-  // Eventos de navegación SPA de YouTube
+  // Handle YouTube SPA dynamic navigation events
   window.addEventListener("yt-navigate-finish", () => {
     setTimeout(injectButton, 600);
     setTimeout(injectButton, 1500);
   });
 
-  // Observador de cambios en el DOM
+  // DOM mutation observer for dynamic rendering
   let debounceTimer = null;
   const observer = new MutationObserver(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -110,6 +110,6 @@
 
   observer.observe(document.body, { childList: true, subtree: true });
 
-  // Intento inicial
+  // Initial attempt
   setTimeout(injectButton, 800);
 })();

@@ -3,7 +3,7 @@ import sys
 import re
 import yt_dlp
 
-# Aseguramos que el directorio de herramientas 'tools' esté en el PATH
+# Ensure the 'tools' directory is in PATH
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(CURRENT_DIR)
 TOOLS_DIR = os.path.join(PROJECT_DIR, "tools")
@@ -12,13 +12,13 @@ if os.path.exists(TOOLS_DIR) and TOOLS_DIR not in os.environ.get("PATH", ""):
     os.environ["PATH"] = TOOLS_DIR + os.pathsep + os.environ.get("PATH", "")
 
 def sanitize_filename(name: str) -> str:
-    """Elimina o reemplaza caracteres no válidos para el sistema de archivos de Windows."""
+    """Removes or replaces invalid characters for the Windows filesystem."""
     clean = re.sub(r'[\\/*?:"<>|]', "", name)
     clean = clean.strip()
-    return clean if clean else "cancion"
+    return clean if clean else "song"
 
 def format_seconds(seconds: float) -> str:
-    """Convierte segundos a formato MM:SS o HH:MM:SS."""
+    """Converts seconds into MM:SS or HH:MM:SS format."""
     if not seconds:
         return "00:00"
     seconds = int(seconds)
@@ -29,7 +29,7 @@ def format_seconds(seconds: float) -> str:
     return f"{m:02d}:{s:02d}"
 
 def get_video_info(url: str) -> dict:
-    """Obtiene metadatos del vídeo sin descargarlo."""
+    """Fetches video metadata without downloading the media."""
     ydl_opts = {
         'quiet': True,
         'no_warnings': True,
@@ -43,22 +43,22 @@ def get_video_info(url: str) -> dict:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
             if not info:
-                return {"success": False, "error": "No se pudo extraer la información del enlace."}
+                return {"success": False, "error": "Could not extract information from the URL."}
             
-            # En caso de lista de reproducción, tomar el primer elemento para previsualización
+            # If playlist, use first entry for preview
             if 'entries' in info and info['entries']:
                 entry = info['entries'][0]
                 is_playlist = True
-                title = info.get('title', 'Lista de reproducción')
+                title = info.get('title', 'Playlist')
                 count = len(info['entries'])
             else:
                 entry = info
                 is_playlist = False
-                title = entry.get('title', 'Desconocido')
+                title = entry.get('title', 'Unknown')
                 count = 1
 
             duration = entry.get('duration', 0)
-            uploader = entry.get('uploader') or entry.get('channel') or entry.get('artist') or 'Artista desconocido'
+            uploader = entry.get('uploader') or entry.get('channel') or entry.get('artist') or 'Unknown artist'
             thumbnail = entry.get('thumbnail')
             
             return {
@@ -76,9 +76,9 @@ def get_video_info(url: str) -> dict:
 
 def download_audio(url: str, output_folder: str, quality: str = "320", progress_callback=None) -> dict:
     """
-    Descarga el audio de YouTube en formato MP3 con metadatos y carátula incrustada.
-    quality: "320", "256", "192" o "128"
-    progress_callback: función que recibe un dict con datos de progreso:
+    Downloads YouTube audio as MP3 with embedded metadata and album art.
+    quality: "320", "256", "192", or "128"
+    progress_callback: function receiving a dict with progress info:
        { 'status': 'downloading'|'converting'|'finished', 'percent': float, 'speed': str, 'eta': str, 'title': str }
     """
     if not os.path.exists(output_folder):
@@ -95,7 +95,7 @@ def download_audio(url: str, output_folder: str, quality: str = "320", progress_
             percent = (downloaded / total * 100.0) if total > 0 else 0.0
             
             speed = d.get('speed')
-            speed_str = f"{speed / (1024 * 1024):.1f} MB/s" if speed else "Calculando..."
+            speed_str = f"{speed / (1024 * 1024):.1f} MB/s" if speed else "Calculating..."
             
             eta = d.get('eta')
             eta_str = f"{eta}s" if eta else "--"
@@ -125,7 +125,7 @@ def download_audio(url: str, output_folder: str, quality: str = "320", progress_
                     'speed': '',
                     'eta': '',
                     'title': current_title[0],
-                    'message': 'Convirtiendo a MP3 e incrustando carátula...'
+                    'message': 'Converting to MP3 & embedding album art...'
                 })
 
     outtmpl_pattern = os.path.join(output_folder, "%(title)s.%(ext)s")
@@ -162,17 +162,14 @@ def download_audio(url: str, output_folder: str, quality: str = "320", progress_
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             
-            # Determinar el nombre final del archivo generado
-            title = info.get('title', 'cancion')
+            title = info.get('title', 'song')
             sanitized = sanitize_filename(title)
             expected_mp3 = os.path.join(output_folder, f"{sanitized}.mp3")
             
-            # Buscar el archivo generado si el sanitizado difiere levemente
             final_path = None
             if os.path.exists(expected_mp3):
                 final_path = expected_mp3
             else:
-                # Comprobar entre los archivos descargados o en la carpeta
                 for root, _, files in os.walk(output_folder):
                     for f in files:
                         if f.endswith('.mp3'):
@@ -180,7 +177,6 @@ def download_audio(url: str, output_folder: str, quality: str = "320", progress_
                             if candidate not in downloaded_files:
                                 final_path = candidate
                 if not final_path and downloaded_files:
-                    # Sustituir extensión a mp3
                     cand = os.path.splitext(downloaded_files[0])[0] + ".mp3"
                     if os.path.exists(cand):
                         final_path = cand
