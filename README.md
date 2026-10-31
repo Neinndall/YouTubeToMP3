@@ -92,42 +92,6 @@ C:\Users\<Your-Username>\Music\YouTube MP3
 
 ---
 
-## 🛠️ Repository Structure
-
-```text
-YouTubeToMP3/                  # Repository Root
-├── README.md                  # Documentation
-├── LICENSE                    # MIT License
-├── .gitignore                 # Git ignore rules
-├── .gitattributes             # Git attributes
-└── YouTubeToMP3/              # Application Directory
-    ├── YouTubeToMP3.exe       # Native Zero-CMD App Launcher
-    ├── main.py                # Application entry point (GUI or Headless)
-    ├── gui.py                 # CustomTkinter modern dark GUI
-    ├── app.ico                # Application Icon
-    ├── requirements.txt       # Python package dependencies
-    ├── launch_gui.bat         # Desktop GUI launcher with console
-    ├── launch_gui_silent.vbs  # Silent Desktop GUI launcher
-    ├── start_background_service.vbs # Headless background service launcher
-    ├── stop_background_service.bat  # Background service stopper
-    ├── core/
-    │   ├── downloader.py      # yt-dlp & FFmpeg audio extraction core
-    │   └── server.py          # Lightweight local API server (CORS enabled)
-    ├── tools/
-    │   ├── ffmpeg.exe         # High-performance audio converter
-    │   └── ffprobe.exe        # Media stream inspector
-    └── extension/
-        ├── manifest.json      # Chrome Extension Manifest V3
-        ├── content.js         # YouTube in-page button injection & toasts
-        ├── content.css        # YouTube button and toast styling
-        ├── popup.html         # Extension popup interface
-        ├── popup.css          # Popup styling
-        ├── popup.js           # Popup logic & API client
-        └── icons/             # Extension icons (16px, 48px, 128px)
-```
-
----
-
 ## 📜 License
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
