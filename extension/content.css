@@ -1,0 +1,77 @@
+/* Estilos para el botón inyectado en la barra de acciones de YouTube */
+.yt-mp3-download-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 36px !important;
+  padding: 0 16px !important;
+  margin-left: 8px !important;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+  color: #ffffff !important;
+  font-family: "Roboto", "Segoe UI", Arial, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border-radius: 18px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 2px 6px rgba(220, 38, 38, 0.3) !important;
+  z-index: 10 !important;
+  outline: none !important;
+  user-select: none !important;
+}
+
+.yt-mp3-download-btn:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.45) !important;
+}
+
+.yt-mp3-download-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.yt-mp3-download-btn svg {
+  margin-right: 6px !important;
+  fill: currentColor !important;
+}
+
+/* Toast de Notificación Flotante */
+.yt-mp3-toast {
+  position: fixed !important;
+  bottom: 30px !important;
+  right: 30px !important;
+  background-color: #18181b !important;
+  color: #f4f4f5 !important;
+  padding: 14px 20px !important;
+  border-radius: 12px !important;
+  border-left: 5px solid #dc2626 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif !important;
+  font-size: 14px !important;
+  z-index: 9999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  animation: ytMp3SlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  max-width: 420px !important;
+}
+
+.yt-mp3-toast.success {
+  border-left-color: #22c55e !important;
+}
+
+.yt-mp3-toast.error {
+  border-left-color: #ef4444 !important;
+}
+
+@keyframes ytMp3SlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
